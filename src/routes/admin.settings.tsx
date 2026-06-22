@@ -8,7 +8,14 @@ import { toast } from "sonner";
 import { friendlyError } from "../lib/errors";
 import { Upload } from "lucide-react";
 
-export const Route = createFileRoute("/admin/settings")({
+const head = () => ({ meta: [
+  { title: "Admin Settings — ChocoLux" },
+  { name: "description", content: "Configure ChocoLux store-wide settings such as branding, shipping and policies." },
+  { name: "robots", content: "noindex, nofollow" },
+  { property: "og:title", content: "Admin Settings — ChocoLux" },
+  { property: "og:description", content: "Configure store-wide settings." },
+] });
+export const Route = createFileRoute("/admin/settings")({ head,
   component: AdminSettings,
 });
 

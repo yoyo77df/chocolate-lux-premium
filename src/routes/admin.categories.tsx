@@ -7,7 +7,14 @@ import { toast } from "sonner";
 import { friendlyError } from "../lib/errors";
 import { Trash2 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/categories")({
+const head = () => ({ meta: [
+  { title: "Admin Categories — ChocoLux" },
+  { name: "description", content: "Manage ChocoLux product categories used to organize the chocolate catalog." },
+  { name: "robots", content: "noindex, nofollow" },
+  { property: "og:title", content: "Admin Categories — ChocoLux" },
+  { property: "og:description", content: "Manage product categories." },
+] });
+export const Route = createFileRoute("/admin/categories")({ head,
   component: AdminCategories,
 });
 

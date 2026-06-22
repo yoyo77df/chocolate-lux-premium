@@ -7,7 +7,14 @@ import { useLang } from "../context/LanguageContext";
 import { toast } from "sonner";
 import { friendlyError } from "../lib/errors";
 
-export const Route = createFileRoute("/admin/mod-payments")({
+const head = () => ({ meta: [
+  { title: "Admin Moderator Payments — ChocoLux" },
+  { name: "description", content: "Review and process payouts to ChocoLux moderators based on tracked activity." },
+  { name: "robots", content: "noindex, nofollow" },
+  { property: "og:title", content: "Admin Moderator Payments — ChocoLux" },
+  { property: "og:description", content: "Process payouts to moderators." },
+] });
+export const Route = createFileRoute("/admin/mod-payments")({ head,
   component: ModPayments,
 });
 

@@ -48,8 +48,8 @@ function Login() {
     <Layout>
       <section className="container mx-auto px-4 py-20 max-w-md">
         <div className="glass rounded-3xl p-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-sm text-muted-foreground mb-6">Sign in to your ChocoLux account</p>
+          <h1 className="text-3xl font-bold mb-2">Sign in to ChocoLux</h1>
+          <p className="text-sm text-muted-foreground mb-6">Welcome back — access your account to manage orders.</p>
           <form onSubmit={submit} className="space-y-4">
             <div>
               <label htmlFor="login-email" className="sr-only">Email</label>

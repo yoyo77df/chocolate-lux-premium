@@ -9,7 +9,14 @@ import { toast } from "sonner";
 import { friendlyError } from "../lib/errors";
 import { Pencil, Plus, Trash2, Upload } from "lucide-react";
 
-export const Route = createFileRoute("/admin/products")({
+const head = () => ({ meta: [
+  { title: "Admin Products — ChocoLux" },
+  { name: "description", content: "Manage ChocoLux product catalog: create, edit and remove premium chocolate listings." },
+  { name: "robots", content: "noindex, nofollow" },
+  { property: "og:title", content: "Admin Products — ChocoLux" },
+  { property: "og:description", content: "Manage the ChocoLux product catalog." },
+] });
+export const Route = createFileRoute("/admin/products")({ head,
   component: AdminProducts,
 });
 

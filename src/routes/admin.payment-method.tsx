@@ -7,7 +7,14 @@ import { useLang } from "../context/LanguageContext";
 import { toast } from "sonner";
 import { friendlyError } from "../lib/errors";
 
-export const Route = createFileRoute("/admin/payment-method")({
+const head = () => ({ meta: [
+  { title: "Admin Payment Methods — ChocoLux" },
+  { name: "description", content: "Configure accepted payment methods for ChocoLux checkout." },
+  { name: "robots", content: "noindex, nofollow" },
+  { property: "og:title", content: "Admin Payment Methods — ChocoLux" },
+  { property: "og:description", content: "Configure accepted payment methods." },
+] });
+export const Route = createFileRoute("/admin/payment-method")({ head,
   component: PaymentMethodPage,
 });
 

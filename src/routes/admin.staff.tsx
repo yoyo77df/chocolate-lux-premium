@@ -4,7 +4,14 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { getFirebase } from "../lib/firebase";
 import { useLang } from "../context/LanguageContext";
 
-export const Route = createFileRoute("/admin/staff")({
+const head = () => ({ meta: [
+  { title: "Admin Staff — ChocoLux" },
+  { name: "description", content: "Manage ChocoLux staff roles and admin/moderator assignments." },
+  { name: "robots", content: "noindex, nofollow" },
+  { property: "og:title", content: "Admin Staff — ChocoLux" },
+  { property: "og:description", content: "Manage staff roles and assignments." },
+] });
+export const Route = createFileRoute("/admin/staff")({ head,
   component: StaffList,
 });
 
