@@ -37,7 +37,22 @@ function Login() {
     setBusy(false);
   }
   async function google() {
-    try { await loginGoogle(); router.navigate({ to: "/" }); } catch (e: any) { toast.error(friendlyError(e)); }
+    try {
+      await loginGoogle();
+      toast.success("Welcome");
+      router.navigate({ to: "/" });
+    } catch (e: any) {
+      console.error("Google sign-in error:", e?.code, e?.message, e);
+      if (e?.code === "auth/unauthorized-domain") {
+        toast.error("This domain is not authorized in Firebase. Add it in Firebase Console → Authentication → Settings → Authorized domains.");
+      } else if (e?.code === "auth/popup-blocked") {
+        toast.error("Popup blocked by browser. Allow popups and try again.");
+      } else if (e?.code === "auth/popup-closed-by-user" || e?.code === "auth/cancelled-popup-request") {
+        toast.error("Sign-in cancelled.");
+      } else {
+        toast.error(friendlyError(e));
+      }
+    }
   }
   async function reset() {
     if (!email) return toast.error("Enter your email first");
