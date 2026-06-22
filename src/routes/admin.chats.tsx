@@ -3,11 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getFirebase } from "../lib/firebase";
 import {
-  addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc,
+  addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, writeBatch,
 } from "firebase/firestore";
-import { Send, MessageCircle } from "lucide-react";
+import { Send, MessageCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { friendlyError } from "../lib/errors";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 
 const head = () => ({ meta: [
   { title: "Admin Live Chat ChocoLux" },
