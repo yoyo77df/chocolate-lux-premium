@@ -6,6 +6,15 @@ import { useLang } from "../context/LanguageContext";
 import { LayoutDashboard, Package, ShoppingBag, Users, Settings as SettingsIcon, Coins, BadgeDollarSign, CreditCard, Tags } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
+  head: () => ({
+    meta: [
+      { title: "Admin — ChocoLux" },
+      { name: "description", content: "ChocoLux internal admin panel for managing products, orders, users, and store settings." },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "Admin — ChocoLux" },
+      { property: "og:description", content: "ChocoLux internal admin panel." },
+    ],
+  }),
   component: AdminLayout,
 });
 
