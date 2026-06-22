@@ -98,6 +98,27 @@ service cloud.firestore {
       allow update, delete: if isMod();
     }
 
+    // ---------- live chat ----------
+    // chats/{uid} — one chat thread per user. Owner OR staff can read/write.
+    match /chats/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isMod());
+      allow create, update: if isSignedIn() && (request.auth.uid == uid || isMod());
+      allow delete: if isAdmin();
+
+      match /messages/{msgId} {
+        allow read: if isSignedIn() && (request.auth.uid == uid || isMod());
+        // User creates messages from='user' for their own thread.
+        // Mods/admins create messages from='admin' in any thread.
+        allow create: if isSignedIn() && (
+          (request.auth.uid == uid && request.resource.data.from == 'user'
+            && request.resource.data.senderUid == request.auth.uid)
+          || (isMod() && request.resource.data.from == 'admin'
+            && request.resource.data.senderUid == request.auth.uid)
+        );
+        allow update, delete: if isAdmin();
+      }
+    }
+
     // ---------- default deny ----------
     match /{document=**} {
       allow read, write: if false;
