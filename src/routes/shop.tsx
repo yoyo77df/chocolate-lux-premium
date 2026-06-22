@@ -78,11 +78,11 @@ function Shop() {
               className="w-full bg-transparent border border-white/10 rounded-lg pl-11 pr-4 py-3 outline-none focus:border-primary"
             />
           </div>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="bg-card border border-white/10 rounded-lg px-4 py-3 outline-none">
+          <select aria-label="Filter by category" value={category} onChange={(e) => setCategory(e.target.value)} className="bg-card border border-white/10 rounded-lg px-4 py-3 outline-none">
             <option value="all">All Categories</option>
             {categories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-card border border-white/10 rounded-lg px-4 py-3 outline-none">
+          <select aria-label="Sort products" value={sort} onChange={(e) => setSort(e.target.value)} className="bg-card border border-white/10 rounded-lg px-4 py-3 outline-none">
             <option value="newest">Newest</option>
             <option value="price-asc">Price: Low → High</option>
             <option value="price-desc">Price: High → Low</option>
