@@ -3,11 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getFirebase } from "../lib/firebase";
 import {
-  addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc,
+  addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, writeBatch,
 } from "firebase/firestore";
-import { Send, MessageCircle } from "lucide-react";
+import { Send, MessageCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { friendlyError } from "../lib/errors";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 
 const head = () => ({ meta: [
   { title: "Admin Live Chat ChocoLux" },
@@ -88,6 +92,25 @@ function AdminChats() {
     setSending(false);
   }
 
+  async function deleteChat(id: string) {
+    try {
+      const { db } = getFirebase();
+      // Delete all messages in batches, then the thread doc itself.
+      const msgsSnap = await getDocs(collection(db, "chats", id, "messages"));
+      const docs = msgsSnap.docs;
+      for (let i = 0; i < docs.length; i += 400) {
+        const batch = writeBatch(db);
+        docs.slice(i, i + 400).forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
+      await deleteDoc(doc(db, "chats", id));
+      if (activeId === id) { setActiveId(null); setMessages([]); }
+      toast.success("Chat deleted");
+    } catch (e: any) {
+      toast.error(friendlyError(e, "Could not delete chat"));
+    }
+  }
+
   const active = threads.find((t) => t.id === activeId);
 
   return (
@@ -138,12 +161,39 @@ function AdminChats() {
             </div>
           ) : (
             <>
-              <div className="pb-3 border-b border-white/5 mb-3">
-                <div className="font-semibold">{active.userName || "User"}</div>
-                <div className="text-xs text-muted-foreground">
-                  ID: <span className="font-mono">{active.userId}</span>
-                  {active.userEmail && <span> · {active.userEmail}</span>}
+              <div className="pb-3 border-b border-white/5 mb-3 flex items-start justify-between gap-2">
+                <div>
+                  <div className="font-semibold">{active.userName || "User"}</div>
+                  <div className="text-xs text-muted-foreground">
+                    ID: <span className="font-mono">{active.userId}</span>
+                    {active.userEmail && <span> · {active.userEmail}</span>}
+                  </div>
                 </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      aria-label="Delete chat"
+                      title="Delete chat"
+                      className="px-3 py-1.5 rounded-full text-xs border border-red-500/30 text-red-400 hover:bg-red-500/10 flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5"/> Delete
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete this chat?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This permanently removes the conversation with {active.userName || "this user"} and all of its messages. This cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => deleteChat(active.id)} className="bg-red-600 hover:bg-red-700">
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
               <div ref={scrollRef} className="flex-1 min-h-[300px] max-h-[55vh] overflow-y-auto space-y-2 pr-1 mb-3">
                 {messages.length === 0 && (
