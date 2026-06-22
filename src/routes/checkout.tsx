@@ -49,21 +49,34 @@ function Checkout() {
     setSubmitting(true);
     try {
       const { db } = getFirebase();
-      await runTransaction(db, async (tx) => {
+      // Recompute prices server-trusted: read each product price from Firestore
+      // inside the transaction and validate stock. Never trust client prices.
+      const verified = await runTransaction(db, async (tx) => {
+        const lines: { id: string; name: string; qty: number; price: number; image?: string }[] = [];
         for (const it of cart.items) {
           const ref = doc(db, "products", it.id);
           const snap = await tx.get(ref);
           if (!snap.exists()) throw new Error(`Product ${it.name} not found`);
-          const stock = (snap.data() as any).stock ?? 0;
+          const data = snap.data() as any;
+          const stock = data.stock ?? 0;
           if (stock < it.qty) throw new Error(`Insufficient stock for ${it.name}`);
+          const price = Number(data.price);
+          if (!Number.isFinite(price) || price < 0) throw new Error(`Invalid price for ${it.name}`);
           tx.update(ref, { stock: stock - it.qty });
+          lines.push({ id: it.id, name: data.name ?? it.name, qty: it.qty, price, image: data.image ?? it.image });
         }
+        const serverSubtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
+        const serverShipping = serverSubtotal >= 75 || serverSubtotal === 0 ? 0 : 7.99;
+        const serverTotal = serverSubtotal + serverShipping;
+        return { lines, serverSubtotal, serverShipping, serverTotal };
       });
       const order = {
         userId: user.uid,
         userEmail: user.email,
-        items: cart.items,
-        subtotal, shipping, total,
+        items: verified.lines,
+        subtotal: verified.serverSubtotal,
+        shipping: verified.serverShipping,
+        total: verified.serverTotal,
         shipping_info: form,
         // also flatten common fields for admin order list display
         customerName: form.name,
