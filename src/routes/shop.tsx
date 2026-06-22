@@ -70,8 +70,9 @@ function Shop() {
 
         <div className="glass rounded-2xl p-4 mb-8 flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <input
+              aria-label="Search chocolates"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search chocolates…"
