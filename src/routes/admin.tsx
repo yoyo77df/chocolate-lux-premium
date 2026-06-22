@@ -60,6 +60,8 @@ function AdminLayout() {
             {isAdmin && <Link to="/admin/salary" activeProps={activeCls} className={linkCls}><Coins className="w-4 h-4"/>{t("salary_rules")}</Link>}
             {isAdmin && <Link to="/admin/mod-payments" activeProps={activeCls} className={linkCls}><BadgeDollarSign className="w-4 h-4"/>{t("mod_payments")}</Link>}
             {isMod && <Link to="/admin/payment-method" activeProps={activeCls} className={linkCls}><CreditCard className="w-4 h-4"/>{t("payment_methods")}</Link>}
+            <Link to="/admin/chats" activeProps={activeCls} className={linkCls}><MessageCircle className="w-4 h-4"/>{t("live_chat")}</Link>
+            {isAdmin && <Link to="/admin/support" activeProps={activeCls} className={linkCls}><LifeBuoy className="w-4 h-4"/>{t("support")}</Link>}
             {isAdmin && <Link to="/admin/settings" activeProps={activeCls} className={linkCls}><SettingsIcon className="w-4 h-4"/>{t("settings")}</Link>}
           </nav>
         </aside>
