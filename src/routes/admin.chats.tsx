@@ -92,6 +92,25 @@ function AdminChats() {
     setSending(false);
   }
 
+  async function deleteChat(id: string) {
+    try {
+      const { db } = getFirebase();
+      // Delete all messages in batches, then the thread doc itself.
+      const msgsSnap = await getDocs(collection(db, "chats", id, "messages"));
+      const docs = msgsSnap.docs;
+      for (let i = 0; i < docs.length; i += 400) {
+        const batch = writeBatch(db);
+        docs.slice(i, i + 400).forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
+      await deleteDoc(doc(db, "chats", id));
+      if (activeId === id) { setActiveId(null); setMessages([]); }
+      toast.success("Chat deleted");
+    } catch (e: any) {
+      toast.error(friendlyError(e, "Could not delete chat"));
+    }
+  }
+
   const active = threads.find((t) => t.id === activeId);
 
   return (
