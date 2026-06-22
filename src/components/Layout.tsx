@@ -41,6 +41,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <Link to="/" className="hover:text-primary transition">{t("home")}</Link>
             <Link to="/shop" className="hover:text-primary transition">{t("shop")}</Link>
             <Link to="/orders" className="hover:text-primary transition">{t("orders")}</Link>
+            <Link to="/support" className="hover:text-primary transition">{t("support")}</Link>
             {isStaff && <Link to="/admin" className="hover:text-primary transition">{t("admin")}</Link>}
           </nav>
           <div className="flex items-center gap-2">
@@ -89,6 +90,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <Link to="/" onClick={() => setOpen(false)}>{t("home")}</Link>
             <Link to="/shop" onClick={() => setOpen(false)}>{t("shop")}</Link>
             <Link to="/orders" onClick={() => setOpen(false)}>{t("orders")}</Link>
+            <Link to="/support" onClick={() => setOpen(false)}>{t("support")}</Link>
             {isStaff && <Link to="/admin" onClick={() => setOpen(false)}><LayoutDashboard className="inline w-4 h-4 mr-1"/>{t("admin")}</Link>}
             <button onClick={() => setLang(lang === "en" ? "bn" : "en")} className="text-left">
               <Globe className="inline w-4 h-4 mr-1"/> {lang === "en" ? "English" : "বাংলা"}
