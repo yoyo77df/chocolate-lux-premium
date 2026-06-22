@@ -48,9 +48,18 @@ function Register() {
           <h1 className="text-3xl font-bold mb-2">{t("join_chocolux")}</h1>
           <p className="text-sm text-muted-foreground mb-6">{t("create_account_subtitle")}</p>
           <form onSubmit={submit} className="space-y-4">
-            <input required placeholder={t("full_name")} value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
-            <input required type="email" placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
-            <input required type="password" minLength={6} placeholder={t("password")} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
+            <div>
+              <label htmlFor="reg-name" className="sr-only">{t("full_name")}</label>
+              <input id="reg-name" required placeholder={t("full_name")} value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
+            </div>
+            <div>
+              <label htmlFor="reg-email" className="sr-only">{t("email")}</label>
+              <input id="reg-email" required type="email" placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
+            </div>
+            <div>
+              <label htmlFor="reg-password" className="sr-only">{t("password")}</label>
+              <input id="reg-password" required type="password" minLength={6} placeholder={t("password")} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
+            </div>
             <div>
               <label className="text-xs text-muted-foreground">{t("preferred_language")}</label>
               <div className="mt-2 grid grid-cols-2 gap-2">

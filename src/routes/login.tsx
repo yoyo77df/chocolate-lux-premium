@@ -50,8 +50,14 @@ function Login() {
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
           <p className="text-sm text-muted-foreground mb-6">Sign in to your ChocoLux account</p>
           <form onSubmit={submit} className="space-y-4">
-            <input required type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
-            <input required type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
+            <div>
+              <label htmlFor="login-email" className="sr-only">Email</label>
+              <input id="login-email" required type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
+            </div>
+            <div>
+              <label htmlFor="login-password" className="sr-only">Password</label>
+              <input id="login-password" required type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-primary"/>
+            </div>
             <button disabled={busy} className="w-full px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50">{busy ? "Signing in…" : "Sign In"}</button>
           </form>
           <button onClick={reset} className="mt-3 text-xs text-muted-foreground hover:text-primary">Forgot password?</button>

@@ -81,14 +81,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ChocoLux — Premium Handcrafted Chocolate" },
-      { name: "description", content: "Discover ChocoLux — luxury handcrafted chocolates, gourmet truffles, and premium gift boxes delivered to your door." },
       { name: "author", content: "ChocoLux" },
-      { property: "og:title", content: "ChocoLux — Premium Handcrafted Chocolate" },
-      { property: "og:description", content: "Luxury handcrafted chocolates and gourmet gift boxes." },
+      { property: "og:site_name", content: "ChocoLux" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

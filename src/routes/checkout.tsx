@@ -126,39 +126,39 @@ function Checkout() {
             <h2 className="text-xl font-bold">{t("shipping_info")}</h2>
 
             <div>
-              <label className="text-sm text-muted-foreground">{t("your_name")}</label>
-              <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls}/>
+              <label htmlFor="co-name" className="text-sm text-muted-foreground">{t("your_name")}</label>
+              <input id="co-name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls}/>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-muted-foreground">{t("mobile_number")}</label>
-                <input required type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls}/>
+                <label htmlFor="co-phone" className="text-sm text-muted-foreground">{t("mobile_number")}</label>
+                <input id="co-phone" required type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls}/>
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">{t("mobile_number_2")}</label>
-                <input type="tel" value={form.phone2} onChange={(e) => setForm({ ...form, phone2: e.target.value })} className={inputCls}/>
+                <label htmlFor="co-phone2" className="text-sm text-muted-foreground">{t("mobile_number_2")}</label>
+                <input id="co-phone2" type="tel" value={form.phone2} onChange={(e) => setForm({ ...form, phone2: e.target.value })} className={inputCls}/>
               </div>
             </div>
 
             <div className="grid sm:grid-cols-3 gap-4">
               <div>
-                <label className="text-sm text-muted-foreground">{t("department")}</label>
-                <select required value={form.division} onChange={(e) => setForm({ ...form, division: e.target.value, district: "", upazila: "" })} className={selectCls}>
+                <label htmlFor="co-division" className="text-sm text-muted-foreground">{t("department")}</label>
+                <select id="co-division" required value={form.division} onChange={(e) => setForm({ ...form, division: e.target.value, district: "", upazila: "" })} className={selectCls}>
                   <option value="">{t("select_division")}</option>
                   {DIVISIONS.map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">{t("district")}</label>
-                <select required disabled={!form.division} value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value, upazila: "" })} className={selectCls}>
+                <label htmlFor="co-district" className="text-sm text-muted-foreground">{t("district")}</label>
+                <select id="co-district" required disabled={!form.division} value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value, upazila: "" })} className={selectCls}>
                   <option value="">{t("select_district")}</option>
                   {districts.map((d) => <option key={d.name} value={d.name}>{d.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">{t("upazila")}</label>
-                <select required disabled={!form.district} value={form.upazila} onChange={(e) => setForm({ ...form, upazila: e.target.value })} className={selectCls}>
+                <label htmlFor="co-upazila" className="text-sm text-muted-foreground">{t("upazila")}</label>
+                <select id="co-upazila" required disabled={!form.district} value={form.upazila} onChange={(e) => setForm({ ...form, upazila: e.target.value })} className={selectCls}>
                   <option value="">{t("select_upazila")}</option>
                   {upazilas.map((u) => <option key={u} value={u}>{u}</option>)}
                 </select>
@@ -166,18 +166,18 @@ function Checkout() {
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">{t("full_address")}</label>
-              <textarea required rows={3} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputCls}/>
+              <label htmlFor="co-address" className="text-sm text-muted-foreground">{t("full_address")}</label>
+              <textarea id="co-address" required rows={3} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputCls}/>
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">{t("order_note")}</label>
-              <textarea rows={2} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className={inputCls}/>
+              <label htmlFor="co-note" className="text-sm text-muted-foreground">{t("order_note")}</label>
+              <textarea id="co-note" rows={2} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className={inputCls}/>
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">{t("payment_method")}</label>
-              <select value={form.payment} onChange={(e) => setForm({ ...form, payment: e.target.value })} className={selectCls}>
+              <label htmlFor="co-payment" className="text-sm text-muted-foreground">{t("payment_method")}</label>
+              <select id="co-payment" value={form.payment} onChange={(e) => setForm({ ...form, payment: e.target.value })} className={selectCls}>
                 <option value="cod">{t("cod")}</option>
                 <option value="card">{t("card")}</option>
               </select>

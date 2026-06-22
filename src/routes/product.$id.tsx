@@ -10,18 +10,65 @@ import { toast } from "sonner";
 import type { Product } from "../components/ProductCard";
 import { Minus, Plus, ShoppingBag, Zap } from "lucide-react";
 
+async function fetchProductMeta(id: string): Promise<{ name?: string; description?: string; image?: string; price?: number; stock?: number } | null> {
+  try {
+    const url = `https://firestore.googleapis.com/v1/projects/chocolate-lux/databases/(default)/documents/products/${encodeURIComponent(id)}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const json: any = await res.json();
+    const f = json.fields ?? {};
+    const v = (x: any) => x?.stringValue ?? x?.integerValue ?? x?.doubleValue ?? x?.booleanValue;
+    return {
+      name: v(f.name),
+      description: v(f.description),
+      image: v(f.image),
+      price: f.price ? Number(v(f.price)) : undefined,
+      stock: f.stock ? Number(v(f.stock)) : undefined,
+    };
+  } catch { return null; }
+}
+
 export const Route = createFileRoute("/product/$id")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Product ${params.id} — ChocoLux` },
-      { name: "description", content: "Discover this handcrafted luxury chocolate from ChocoLux — premium ingredients, made fresh daily." },
-      { property: "og:title", content: `Product ${params.id} — ChocoLux` },
-      { property: "og:description", content: "Discover this handcrafted luxury chocolate from ChocoLux — premium ingredients, made fresh daily." },
-      { property: "og:type", content: "product" },
-      { property: "og:url", content: `https://web-muse-fix.lovable.app/product/${params.id}` },
-    ],
-    links: [{ rel: "canonical", href: `https://web-muse-fix.lovable.app/product/${params.id}` }],
-  }),
+  loader: async ({ params }) => ({ meta: await fetchProductMeta(params.id) }),
+  head: ({ params, loaderData }) => {
+    const m = loaderData?.meta;
+    const name = m?.name ?? `Product ${params.id}`;
+    const title = `${name} — ChocoLux`;
+    const desc = (m?.description && m.description.slice(0, 160)) || `Discover ${name} — handcrafted luxury chocolate from ChocoLux.`;
+    const url = `https://web-muse-fix.lovable.app/product/${params.id}`;
+    const ogImage = m?.image;
+    const productLd: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name,
+      description: desc,
+      ...(ogImage ? { image: ogImage } : {}),
+      ...(m?.price != null ? {
+        offers: {
+          "@type": "Offer",
+          price: m.price,
+          priceCurrency: "USD",
+          availability: (m.stock ?? 0) > 0
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+          url,
+        },
+      } : {}),
+    };
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        ...(ogImage ? [{ property: "og:image", content: ogImage }] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [{ type: "application/ld+json", children: JSON.stringify(productLd) }],
+    };
+  },
   component: ProductPage,
 });
 
