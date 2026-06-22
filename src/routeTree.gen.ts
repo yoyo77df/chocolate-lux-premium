@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as RegisterRouteImport } from './routes/register'
@@ -21,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminSalaryRouteImport } from './routes/admin.salary'
@@ -28,8 +30,14 @@ import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPaymentMethodRouteImport } from './routes/admin.payment-method'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminModPaymentsRouteImport } from './routes/admin.mod-payments'
+import { Route as AdminChatsRouteImport } from './routes/admin.chats'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -90,6 +98,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSupportRoute = AdminSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminStaffRoute = AdminStaffRouteImport.update({
   id: '/staff',
   path: '/staff',
@@ -125,6 +138,11 @@ const AdminModPaymentsRoute = AdminModPaymentsRouteImport.update({
   path: '/mod-payments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminChatsRoute = AdminChatsRouteImport.update({
+  id: '/chats',
+  path: '/chats',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -141,7 +159,9 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/chats': typeof AdminChatsRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/payment-method': typeof AdminPaymentMethodRoute
@@ -149,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/admin/salary': typeof AdminSalaryRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/users': typeof AdminUsersRoute
   '/product/$id': typeof ProductIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -162,7 +183,9 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/chats': typeof AdminChatsRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/payment-method': typeof AdminPaymentMethodRoute
@@ -170,6 +193,7 @@ export interface FileRoutesByTo {
   '/admin/salary': typeof AdminSalaryRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/users': typeof AdminUsersRoute
   '/product/$id': typeof ProductIdRoute
   '/admin': typeof AdminIndexRoute
@@ -185,7 +209,9 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/chats': typeof AdminChatsRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/payment-method': typeof AdminPaymentMethodRoute
@@ -193,6 +219,7 @@ export interface FileRoutesById {
   '/admin/salary': typeof AdminSalaryRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/users': typeof AdminUsersRoute
   '/product/$id': typeof ProductIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -209,7 +236,9 @@ export interface FileRouteTypes {
     | '/register'
     | '/shop'
     | '/sitemap.xml'
+    | '/support'
     | '/admin/categories'
+    | '/admin/chats'
     | '/admin/mod-payments'
     | '/admin/orders'
     | '/admin/payment-method'
@@ -217,6 +246,7 @@ export interface FileRouteTypes {
     | '/admin/salary'
     | '/admin/settings'
     | '/admin/staff'
+    | '/admin/support'
     | '/admin/users'
     | '/product/$id'
     | '/admin/'
@@ -230,7 +260,9 @@ export interface FileRouteTypes {
     | '/register'
     | '/shop'
     | '/sitemap.xml'
+    | '/support'
     | '/admin/categories'
+    | '/admin/chats'
     | '/admin/mod-payments'
     | '/admin/orders'
     | '/admin/payment-method'
@@ -238,6 +270,7 @@ export interface FileRouteTypes {
     | '/admin/salary'
     | '/admin/settings'
     | '/admin/staff'
+    | '/admin/support'
     | '/admin/users'
     | '/product/$id'
     | '/admin'
@@ -252,7 +285,9 @@ export interface FileRouteTypes {
     | '/register'
     | '/shop'
     | '/sitemap.xml'
+    | '/support'
     | '/admin/categories'
+    | '/admin/chats'
     | '/admin/mod-payments'
     | '/admin/orders'
     | '/admin/payment-method'
@@ -260,6 +295,7 @@ export interface FileRouteTypes {
     | '/admin/salary'
     | '/admin/settings'
     | '/admin/staff'
+    | '/admin/support'
     | '/admin/users'
     | '/product/$id'
     | '/admin/'
@@ -275,11 +311,19 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ShopRoute: typeof ShopRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SupportRoute: typeof SupportRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -364,6 +408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/support': {
+      id: '/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AdminSupportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/staff': {
       id: '/admin/staff'
       path: '/staff'
@@ -413,6 +464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminModPaymentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/chats': {
+      id: '/admin/chats'
+      path: '/chats'
+      fullPath: '/admin/chats'
+      preLoaderRoute: typeof AdminChatsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/categories': {
       id: '/admin/categories'
       path: '/categories'
@@ -425,6 +483,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminChatsRoute: typeof AdminChatsRoute
   AdminModPaymentsRoute: typeof AdminModPaymentsRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminPaymentMethodRoute: typeof AdminPaymentMethodRoute
@@ -432,12 +491,14 @@ interface AdminRouteChildren {
   AdminSalaryRoute: typeof AdminSalaryRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminStaffRoute: typeof AdminStaffRoute
+  AdminSupportRoute: typeof AdminSupportRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminChatsRoute: AdminChatsRoute,
   AdminModPaymentsRoute: AdminModPaymentsRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminPaymentMethodRoute: AdminPaymentMethodRoute,
@@ -445,6 +506,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSalaryRoute: AdminSalaryRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminStaffRoute: AdminStaffRoute,
+  AdminSupportRoute: AdminSupportRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -461,6 +523,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ShopRoute: ShopRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SupportRoute: SupportRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport

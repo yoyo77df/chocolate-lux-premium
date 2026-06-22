@@ -9,6 +9,8 @@ export const en = {
   logout: "Logout",
   register: "Register",
   language: "Language",
+  support: "Support",
+  live_chat: "Live Chat",
 
   // shop / product
   add_to_cart: "Add to Cart",

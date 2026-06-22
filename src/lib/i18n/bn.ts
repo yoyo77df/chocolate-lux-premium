@@ -10,6 +10,8 @@ export const bn: Dict = {
   logout: "লগআউট",
   register: "রেজিস্টার",
   language: "ভাষা",
+  support: "সাপোর্ট",
+  live_chat: "লাইভ চ্যাট",
 
   add_to_cart: "কার্টে যোগ করুন",
   buy_now: "এখনই কিনুন",

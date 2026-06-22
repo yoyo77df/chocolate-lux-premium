@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Layout } from "../components/Layout";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
-import { LayoutDashboard, Package, ShoppingBag, Users, Settings as SettingsIcon, Coins, BadgeDollarSign, CreditCard, Tags } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Users, Settings as SettingsIcon, Coins, BadgeDollarSign, CreditCard, Tags, MessageCircle, LifeBuoy } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
