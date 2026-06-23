@@ -43,11 +43,11 @@ export function ProductCard({ p }: { p: Product }) {
       params={{ id: p.id }}
       className="group glass rounded-2xl overflow-hidden hover:border-primary/40 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10 flex flex-col"
     >
-      <div className="aspect-square overflow-hidden bg-muted relative">
+      <div className="aspect-square overflow-hidden relative">
         <SafeImage
           src={p.image}
           alt={p.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
         />
         {hasDiscount && (
           <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">
