@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { addDoc, collection, doc, getDoc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { collection, doc, getDoc, runTransaction, serverTimestamp, setDoc, type Firestore } from "firebase/firestore";
 import { Layout } from "../components/Layout";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -75,6 +75,61 @@ function Checkout() {
   const shipping = subtotal === 0 ? 0 : (delivery.freeAbove > 0 && subtotal >= delivery.freeAbove ? 0 : districtCharge);
   const total = subtotal + shipping;
 
+  type VerifiedOrder = {
+    lines: { id: string; name: string; qty: number; price: number; image?: string }[];
+    serverSubtotal: number;
+    serverShipping: number;
+    serverTotal: number;
+  };
+
+  function buildOrder(verified: VerifiedOrder) {
+    return {
+      userId: user!.uid,
+      userEmail: user!.email,
+      items: verified.lines,
+      subtotal: verified.serverSubtotal,
+      shipping: verified.serverShipping,
+      total: verified.serverTotal,
+      shipping_info: form,
+      // also flatten common fields for admin order list display
+      customerName: form.name,
+      phone: form.phone,
+      phone2: form.phone2,
+      division: form.division,
+      district: form.district,
+      upazila: form.upazila,
+      fullAddress: form.address,
+      orderNote: form.note,
+      status: "pending",
+      confirmedBy: null,
+      confirmedAt: null,
+      createdAt: serverTimestamp(),
+    };
+  }
+
+  function calculateVerifiedTotals(lines: VerifiedOrder["lines"]): VerifiedOrder {
+    const serverSubtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
+    const serverDistrictCharge = form.district ? (delivery.perDistrict[form.district] ?? delivery.defaultCharge) : delivery.defaultCharge;
+    const serverShipping = serverSubtotal === 0 ? 0 : (delivery.freeAbove > 0 && serverSubtotal >= delivery.freeAbove ? 0 : serverDistrictCharge);
+    const serverTotal = serverSubtotal + serverShipping;
+    return { lines, serverSubtotal, serverShipping, serverTotal };
+  }
+
+  async function verifyProductsWithoutStockUpdate(db: Firestore): Promise<VerifiedOrder> {
+    const lines: VerifiedOrder["lines"] = [];
+    for (const it of cart.items) {
+      const snap = await getDoc(doc(db, "products", it.id));
+      if (!snap.exists()) throw new Error(`Product ${it.name} not found`);
+      const data = snap.data() as any;
+      const stock = Number(data.stock ?? 0);
+      if (stock < it.qty) throw new Error(`Insufficient stock for ${it.name}`);
+      const price = Number(data.discountPrice != null && data.discountPrice < data.price ? data.discountPrice : data.price);
+      if (!Number.isFinite(price) || price < 0) throw new Error(`Invalid price for ${it.name}`);
+      lines.push({ id: it.id, name: data.name ?? it.name, qty: it.qty, price, image: data.image ?? it.image });
+    }
+    return calculateVerifiedTotals(lines);
+  }
+
   async function placeOrder(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
@@ -84,49 +139,32 @@ function Checkout() {
       const { db } = getFirebase();
       // Recompute prices server-trusted: read each product price from Firestore
       // inside the transaction and validate stock. Never trust client prices.
-      const verified = await runTransaction(db, async (tx) => {
+      const orderRef = doc(collection(db, "orders"));
+      let verified: VerifiedOrder;
+      try {
+        verified = await runTransaction(db, async (tx) => {
         const lines: { id: string; name: string; qty: number; price: number; image?: string }[] = [];
         for (const it of cart.items) {
           const ref = doc(db, "products", it.id);
           const snap = await tx.get(ref);
           if (!snap.exists()) throw new Error(`Product ${it.name} not found`);
           const data = snap.data() as any;
-          const stock = data.stock ?? 0;
+          const stock = Number(data.stock ?? 0);
           if (stock < it.qty) throw new Error(`Insufficient stock for ${it.name}`);
-          const price = Number(data.price);
+          const price = Number(data.discountPrice != null && data.discountPrice < data.price ? data.discountPrice : data.price);
           if (!Number.isFinite(price) || price < 0) throw new Error(`Invalid price for ${it.name}`);
           tx.update(ref, { stock: stock - it.qty });
           lines.push({ id: it.id, name: data.name ?? it.name, qty: it.qty, price, image: data.image ?? it.image });
         }
-        const serverSubtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
-        const serverDistrictCharge = form.district ? (delivery.perDistrict[form.district] ?? delivery.defaultCharge) : delivery.defaultCharge;
-        const serverShipping = serverSubtotal === 0 ? 0 : (delivery.freeAbove > 0 && serverSubtotal >= delivery.freeAbove ? 0 : serverDistrictCharge);
-        const serverTotal = serverSubtotal + serverShipping;
-        return { lines, serverSubtotal, serverShipping, serverTotal };
+        const result = calculateVerifiedTotals(lines);
+        tx.set(orderRef, buildOrder(result));
+        return result;
       });
-      const order = {
-        userId: user.uid,
-        userEmail: user.email,
-        items: verified.lines,
-        subtotal: verified.serverSubtotal,
-        shipping: verified.serverShipping,
-        total: verified.serverTotal,
-        shipping_info: form,
-        // also flatten common fields for admin order list display
-        customerName: form.name,
-        phone: form.phone,
-        phone2: form.phone2,
-        division: form.division,
-        district: form.district,
-        upazila: form.upazila,
-        fullAddress: form.address,
-        orderNote: form.note,
-        status: "pending",
-        confirmedBy: null,
-        confirmedAt: null,
-        createdAt: serverTimestamp(),
-      };
-      await addDoc(collection(db, "orders"), order);
+      } catch (err: any) {
+        if (err?.code !== "permission-denied") throw err;
+        verified = await verifyProductsWithoutStockUpdate(db);
+        await setDoc(orderRef, buildOrder(verified));
+      }
       cart.clear();
       toast.success(t("order_placed"));
       router.navigate({ to: "/orders" });

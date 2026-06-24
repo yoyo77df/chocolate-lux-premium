@@ -32,7 +32,8 @@ service cloud.firestore {
     match /users/{uid} {
       // A user may read their own profile; admins/mods may read any.
       allow get: if isSignedIn() && (request.auth.uid == uid || isMod());
-      allow list: if isMod();
+      allow list: if isSignedIn()
+                  && (resource.data.userId == request.auth.uid || isMod());
 
       // A user can create their own profile on signup, but cannot set role/salary.
       allow create: if isSignedIn()
@@ -61,7 +62,8 @@ service cloud.firestore {
         isSignedIn()
         && resource != null
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock'])
-        && request.resource.data.stock is int
+        && request.resource.data.stock is number
+        && resource.data.stock is number
         && request.resource.data.stock >= 0
         && request.resource.data.stock <= resource.data.stock
       );
