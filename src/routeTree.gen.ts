@@ -30,6 +30,7 @@ import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPaymentMethodRouteImport } from './routes/admin.payment-method'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminModPaymentsRouteImport } from './routes/admin.mod-payments'
+import { Route as AdminDeliveryRouteImport } from './routes/admin.delivery'
 import { Route as AdminChatsRouteImport } from './routes/admin.chats'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 
@@ -138,6 +139,11 @@ const AdminModPaymentsRoute = AdminModPaymentsRouteImport.update({
   path: '/mod-payments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminDeliveryRoute = AdminDeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminChatsRoute = AdminChatsRouteImport.update({
   id: '/chats',
   path: '/chats',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/chats': typeof AdminChatsRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/payment-method': typeof AdminPaymentMethodRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/chats': typeof AdminChatsRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/payment-method': typeof AdminPaymentMethodRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/chats': typeof AdminChatsRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/payment-method': typeof AdminPaymentMethodRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/admin/categories'
     | '/admin/chats'
+    | '/admin/delivery'
     | '/admin/mod-payments'
     | '/admin/orders'
     | '/admin/payment-method'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/admin/categories'
     | '/admin/chats'
+    | '/admin/delivery'
     | '/admin/mod-payments'
     | '/admin/orders'
     | '/admin/payment-method'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/admin/categories'
     | '/admin/chats'
+    | '/admin/delivery'
     | '/admin/mod-payments'
     | '/admin/orders'
     | '/admin/payment-method'
@@ -464,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminModPaymentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/delivery': {
+      id: '/admin/delivery'
+      path: '/delivery'
+      fullPath: '/admin/delivery'
+      preLoaderRoute: typeof AdminDeliveryRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/chats': {
       id: '/admin/chats'
       path: '/chats'
@@ -484,6 +503,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminChatsRoute: typeof AdminChatsRoute
+  AdminDeliveryRoute: typeof AdminDeliveryRoute
   AdminModPaymentsRoute: typeof AdminModPaymentsRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminPaymentMethodRoute: typeof AdminPaymentMethodRoute
@@ -499,6 +519,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminChatsRoute: AdminChatsRoute,
+  AdminDeliveryRoute: AdminDeliveryRoute,
   AdminModPaymentsRoute: AdminModPaymentsRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminPaymentMethodRoute: AdminPaymentMethodRoute,

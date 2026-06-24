@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { addDoc, collection, doc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, runTransaction, serverTimestamp } from "firebase/firestore";
 import { Layout } from "../components/Layout";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -31,6 +31,9 @@ function Checkout() {
   const { t } = useLang();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [delivery, setDelivery] = useState<{ defaultCharge: number; perDistrict: Record<string, number>; freeAbove: number }>({
+    defaultCharge: 80, perDistrict: {}, freeAbove: 0,
+  });
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -47,11 +50,29 @@ function Checkout() {
     if (!loading && !user) router.navigate({ to: "/login" });
   }, [loading, user, router]);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const { db } = getFirebase();
+        const snap = await getDoc(doc(db, "settings", "delivery"));
+        if (snap.exists()) {
+          const d = snap.data() as any;
+          setDelivery({
+            defaultCharge: Number(d.defaultCharge ?? 80),
+            perDistrict: d.perDistrict ?? {},
+            freeAbove: Number(d.freeAbove ?? 0),
+          });
+        }
+      } catch (e) { console.error("delivery load", e); }
+    })();
+  }, []);
+
   const districts = useMemo(() => getDistricts(form.division), [form.division]);
   const upazilas = useMemo(() => getUpazilas(form.division, form.district), [form.division, form.district]);
 
   const subtotal = cart.total;
-  const shipping = subtotal >= 75 || subtotal === 0 ? 0 : 7.99;
+  const districtCharge = form.district ? (delivery.perDistrict[form.district] ?? delivery.defaultCharge) : delivery.defaultCharge;
+  const shipping = subtotal === 0 ? 0 : (delivery.freeAbove > 0 && subtotal >= delivery.freeAbove ? 0 : districtCharge);
   const total = subtotal + shipping;
 
   async function placeOrder(e: React.FormEvent) {
@@ -78,7 +99,8 @@ function Checkout() {
           lines.push({ id: it.id, name: data.name ?? it.name, qty: it.qty, price, image: data.image ?? it.image });
         }
         const serverSubtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
-        const serverShipping = serverSubtotal >= 75 || serverSubtotal === 0 ? 0 : 7.99;
+        const serverDistrictCharge = form.district ? (delivery.perDistrict[form.district] ?? delivery.defaultCharge) : delivery.defaultCharge;
+        const serverShipping = serverSubtotal === 0 ? 0 : (delivery.freeAbove > 0 && serverSubtotal >= delivery.freeAbove ? 0 : serverDistrictCharge);
         const serverTotal = serverSubtotal + serverShipping;
         return { lines, serverSubtotal, serverShipping, serverTotal };
       });
