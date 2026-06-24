@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import { Layout } from "../components/Layout";
 import { useAuth } from "../context/AuthContext";
 import { getFirebase } from "../lib/firebase";
@@ -32,7 +32,7 @@ function Orders() {
     (async () => {
       try {
         const { db } = getFirebase();
-        const snap = await getDocs(query(collection(db, "orders"), where("userId", "==", user.uid)));
+        const snap = await getDocs(query(collection(db, "orders"), where("userId", "==", user.uid), limit(1000)));
         const list = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
         list.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
         setOrders(list);

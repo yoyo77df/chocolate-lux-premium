@@ -86,7 +86,10 @@ function ProductPage() {
       try {
         const { db } = getFirebase();
         const snap = await getDoc(doc(db, "products", id));
-        if (snap.exists()) setP({ id: snap.id, ...(snap.data() as any) });
+        if (snap.exists()) {
+          const data = snap.data() as any;
+          setP({ id: snap.id, ...data, stock: Number(data.stock ?? 0), price: Number(data.price ?? 0), discountPrice: data.discountPrice == null ? null : Number(data.discountPrice) });
+        }
       } catch (e) { console.error(e); }
       setLoading(false);
     })();
@@ -97,10 +100,13 @@ function ProductPage() {
 
   const hasDiscount = p.discountPrice != null && p.discountPrice < p.price;
   const display = hasDiscount ? p.discountPrice! : p.price;
+  const stock = Number(p.stock ?? 0);
+  const isSoldOut = !Number.isFinite(stock) || stock <= 0;
 
   function add(navigateToCheckout: boolean) {
     if (!p) return;
-    cart.add({ id: p.id, name: p.name, price: display, image: p.image, stock: p.stock }, qty);
+    if (isSoldOut) return;
+    cart.add({ id: p.id, name: p.name, price: display, image: p.image, stock }, Math.min(qty, stock));
     if (navigateToCheckout) router.navigate({ to: "/checkout" });
     else toast.success(`${p.name} → ${t("add_to_cart")}`);
   }
@@ -120,23 +126,23 @@ function ProductPage() {
           </div>
           <p className="mt-6 text-muted-foreground leading-relaxed">{p.description || "A premium handcrafted chocolate experience."}</p>
           <div className="mt-6 text-sm">
-            {p.stock > 0 ? <span className="text-green-400">● {t("in_stock")} ({p.stock})</span> : <span className="text-destructive">● {t("sold_out")}</span>}
+            {!isSoldOut ? <span className="text-green-400">● {t("in_stock")} ({stock})</span> : <span className="text-destructive">● {t("sold_out")}</span>}
           </div>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <div className="glass rounded-full flex items-center">
               <button aria-label="Decrease quantity" onClick={() => setQty(Math.max(1, qty - 1))} className="p-3 hover:text-primary"><Minus className="w-4 h-4" aria-hidden="true"/></button>
               <span className="px-4 font-semibold" aria-live="polite">{qty}</span>
-              <button aria-label="Increase quantity" onClick={() => setQty(Math.min(p.stock, qty + 1))} className="p-3 hover:text-primary"><Plus className="w-4 h-4" aria-hidden="true"/></button>
+              <button aria-label="Increase quantity" onClick={() => setQty(Math.min(stock, qty + 1))} className="p-3 hover:text-primary"><Plus className="w-4 h-4" aria-hidden="true"/></button>
             </div>
             <button
-              disabled={p.stock === 0}
+              disabled={isSoldOut}
               onClick={() => add(false)}
               className="px-6 py-3 rounded-full gold-border hover:bg-primary/10 font-semibold disabled:opacity-50 flex items-center gap-2"
             >
               <ShoppingBag className="w-4 h-4"/> {t("add_to_cart")}
             </button>
             <button
-              disabled={p.stock === 0}
+              disabled={isSoldOut}
               onClick={() => add(true)}
               className="px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
             >

@@ -43,7 +43,10 @@ function Shop() {
       try {
         const { db } = getFirebase();
         const snap = await getDocs(query(collection(db, "products"), orderBy("createdAt", "desc")));
-        setProducts(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })));
+        setProducts(snap.docs.map((d) => {
+          const data = d.data() as any;
+          return { id: d.id, ...data, stock: Number(data.stock ?? 0), price: Number(data.price ?? 0), discountPrice: data.discountPrice == null ? null : Number(data.discountPrice) };
+        }));
       } catch (e) { console.error(e); }
       setLoading(false);
     })();

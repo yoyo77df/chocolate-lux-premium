@@ -63,9 +63,11 @@ service cloud.firestore {
         && resource != null
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock'])
         && request.resource.data.stock is number
-        && resource.data.stock is number
         && request.resource.data.stock >= 0
-        && request.resource.data.stock <= resource.data.stock
+        && (
+          (resource.data.stock is number && request.resource.data.stock <= resource.data.stock)
+          || !(resource.data.stock is number)
+        )
       );
     }
 
@@ -98,10 +100,8 @@ service cloud.firestore {
       // Owner can read their own order; admins/mods can read all.
       allow get: if isSignedIn()
                  && (resource.data.userId == request.auth.uid || isMod());
-      allow list: if isSignedIn() && (isMod() || (
-        request.query.limit <= 1000
-        && resource.data.userId == request.auth.uid
-      ));
+      allow list: if isSignedIn()
+                  && (resource.data.userId == request.auth.uid || isMod());
 
       // Customer creates their own order. Status/confirmation locked at create.
       allow create: if isSignedIn()

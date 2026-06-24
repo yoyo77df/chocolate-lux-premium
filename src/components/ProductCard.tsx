@@ -21,19 +21,21 @@ export function ProductCard({ p }: { p: Product }) {
   const cart = useCart();
   const router = useRouter();
   const { t } = useLang();
+  const stock = Number(p.stock ?? 0);
+  const isSoldOut = !Number.isFinite(stock) || stock <= 0;
   const hasDiscount = p.discountPrice != null && p.discountPrice < p.price;
   const display = hasDiscount ? p.discountPrice! : p.price;
 
   function addToCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
-    if (p.stock === 0) return;
-    cart.add({ id: p.id, name: p.name, price: display, image: p.image, stock: p.stock }, 1);
+    if (isSoldOut) return;
+    cart.add({ id: p.id, name: p.name, price: display, image: p.image, stock }, 1);
     toast.success(`${p.name} → ${t("add_to_cart")}`);
   }
   function buyNow(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
-    if (p.stock === 0) return;
-    cart.add({ id: p.id, name: p.name, price: display, image: p.image, stock: p.stock }, 1);
+    if (isSoldOut) return;
+    cart.add({ id: p.id, name: p.name, price: display, image: p.image, stock }, 1);
     router.navigate({ to: "/checkout" });
   }
 
@@ -54,7 +56,7 @@ export function ProductCard({ p }: { p: Product }) {
             -{Math.round((1 - p.discountPrice! / p.price) * 100)}%
           </span>
         )}
-        {p.stock === 0 && (
+        {isSoldOut && (
           <span className="absolute top-3 right-3 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded">{t("sold_out")}</span>
         )}
       </div>
@@ -71,7 +73,7 @@ export function ProductCard({ p }: { p: Product }) {
           <button
             type="button"
             onClick={addToCart}
-            disabled={p.stock === 0}
+            disabled={isSoldOut}
             className="flex-1 px-3 py-2 rounded-full gold-border text-xs font-semibold hover:bg-primary/10 disabled:opacity-50 flex items-center justify-center gap-1"
           >
             <ShoppingBag className="w-3.5 h-3.5"/>{t("add_to_cart")}
@@ -79,7 +81,7 @@ export function ProductCard({ p }: { p: Product }) {
           <button
             type="button"
             onClick={buyNow}
-            disabled={p.stock === 0}
+            disabled={isSoldOut}
             className="flex-1 px-3 py-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-1"
           >
             <Zap className="w-3.5 h-3.5"/>{t("buy_now")}
