@@ -167,7 +167,6 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
-  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/chats': typeof AdminChatsRoute
   '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
@@ -193,7 +192,6 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
-  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/chats': typeof AdminChatsRoute
   '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
@@ -221,7 +219,6 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/admin/categories': typeof AdminCategoriesRoute
-  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/chats': typeof AdminChatsRoute
   '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/mod-payments': typeof AdminModPaymentsRoute
@@ -250,7 +247,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/support'
     | '/admin/categories'
-    | '/admin/delivery'
     | '/admin/chats'
     | '/admin/delivery'
     | '/admin/mod-payments'
@@ -276,7 +272,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/support'
     | '/admin/categories'
-    | '/admin/delivery'
     | '/admin/chats'
     | '/admin/delivery'
     | '/admin/mod-payments'
@@ -303,7 +298,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/support'
     | '/admin/categories'
-    | '/admin/delivery'
     | '/admin/chats'
     | '/admin/delivery'
     | '/admin/mod-payments'
@@ -503,19 +497,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/delivery': {
-      id: '/admin/delivery'
-      path: '/delivery'
-      fullPath: '/admin/delivery'
-      preLoaderRoute: typeof AdminDeliveryRouteImport
-      parentRoute: typeof AdminRoute
-    }
   }
 }
 
 interface AdminRouteChildren {
   AdminCategoriesRoute: typeof AdminCategoriesRoute
-  AdminDeliveryRoute: typeof AdminDeliveryRoute
   AdminChatsRoute: typeof AdminChatsRoute
   AdminDeliveryRoute: typeof AdminDeliveryRoute
   AdminModPaymentsRoute: typeof AdminModPaymentsRoute
@@ -532,7 +518,6 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCategoriesRoute: AdminCategoriesRoute,
-  AdminDeliveryRoute: AdminDeliveryRoute,
   AdminChatsRoute: AdminChatsRoute,
   AdminDeliveryRoute: AdminDeliveryRoute,
   AdminModPaymentsRoute: AdminModPaymentsRoute,
@@ -565,3 +550,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
