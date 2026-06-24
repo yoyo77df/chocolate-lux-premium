@@ -99,7 +99,8 @@ function Checkout() {
           lines.push({ id: it.id, name: data.name ?? it.name, qty: it.qty, price, image: data.image ?? it.image });
         }
         const serverSubtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
-        const serverShipping = serverSubtotal >= 75 || serverSubtotal === 0 ? 0 : 7.99;
+        const serverDistrictCharge = form.district ? (delivery.perDistrict[form.district] ?? delivery.defaultCharge) : delivery.defaultCharge;
+        const serverShipping = serverSubtotal === 0 ? 0 : (delivery.freeAbove > 0 && serverSubtotal >= delivery.freeAbove ? 0 : serverDistrictCharge);
         const serverTotal = serverSubtotal + serverShipping;
         return { lines, serverSubtotal, serverShipping, serverTotal };
       });
