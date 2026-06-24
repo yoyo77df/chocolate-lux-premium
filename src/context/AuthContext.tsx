@@ -41,15 +41,16 @@ type AuthCtx = {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
-async function loadProfile(user: User, language?: "en" | "bn"): Promise<UserProfile> {
+async function loadProfile(user: User, language?: "en" | "bn", overrideName?: string): Promise<UserProfile> {
   const { db } = getFirebase();
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
+  const displayName = overrideName ?? user.displayName ?? null;
   if (!snap.exists()) {
     const profile: UserProfile = {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName,
+      displayName,
       photoURL: user.photoURL,
       role: "user",
       language: language ?? "en",
@@ -59,7 +60,16 @@ async function loadProfile(user: User, language?: "en" | "bn"): Promise<UserProf
     await setDoc(ref, profile);
     return profile;
   }
-  return snap.data() as UserProfile;
+  const data = snap.data() as UserProfile;
+  const patch: Record<string, any> = {};
+  if (!data.email && user.email) patch.email = user.email;
+  if (!data.displayName && displayName) patch.displayName = displayName;
+  if (!data.photoURL && user.photoURL) patch.photoURL = user.photoURL;
+  if (Object.keys(patch).length) {
+    try { await setDoc(ref, patch, { merge: true }); } catch {}
+    return { ...data, ...patch } as UserProfile;
+  }
+  return data;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -105,8 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { auth } = getFirebase();
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       if (name) await updateProfile(cred.user, { displayName: name });
-      // ensure profile doc with language preference
-      try { await loadProfile(cred.user, language); } catch {}
+      try { await loadProfile(cred.user, language, name); } catch {}
     },
     async loginGoogle() {
       const { auth } = getFirebase();
