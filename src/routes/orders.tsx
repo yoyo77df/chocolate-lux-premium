@@ -1,9 +1,18 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { collection, getDocs, limit, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, limit, query, where } from "firebase/firestore";
 import { Layout } from "../components/Layout";
 import { useAuth } from "../context/AuthContext";
 import { getFirebase } from "../lib/firebase";
+
+function getSavedOrderIds(uid: string) {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(`chocolux_order_ids_${uid}`) || "[]");
+    return Array.isArray(saved) ? saved.filter((id) => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
 
 export const Route = createFileRoute("/orders")({
   head: () => ({
@@ -32,12 +41,34 @@ function Orders() {
     (async () => {
       try {
         const { db } = getFirebase();
-        const byUid = await getDocs(query(collection(db, "orders"), where("userId", "==", user.uid), limit(1000)));
-        const byEmail = user.email
-          ? await getDocs(query(collection(db, "orders"), where("userEmail", "==", user.email), limit(1000)))
-          : null;
         const map = new Map<string, any>();
-        [...byUid.docs, ...(byEmail?.docs ?? [])].forEach((d) => map.set(d.id, { id: d.id, ...(d.data() as any) }));
+        try {
+          const byUid = await getDocs(query(collection(db, "orders"), where("userId", "==", user.uid), limit(1000)));
+          const byEmail = user.email
+            ? await getDocs(query(collection(db, "orders"), where("userEmail", "==", user.email), limit(1000)))
+            : null;
+          [...byUid.docs, ...(byEmail?.docs ?? [])].forEach((d) => map.set(d.id, { id: d.id, ...(d.data() as any) }));
+        } catch (e) {
+          console.warn("order query skipped, loading saved order ids", e);
+        }
+        if (map.size === 0) {
+          const profileSnap = await getDoc(doc(db, "users", user.uid));
+          const profileOrderIds = profileSnap.exists() && Array.isArray((profileSnap.data() as any).orderIds)
+            ? (profileSnap.data() as any).orderIds.slice(-1000)
+            : [];
+          const orderIds = Array.from(new Set([...profileOrderIds, ...getSavedOrderIds(user.uid)])).slice(-1000);
+          const savedOrders = await Promise.all(
+            orderIds.map(async (id: string) => {
+              try {
+                const snap = await getDoc(doc(db, "orders", id));
+                return snap.exists() ? { id: snap.id, ...(snap.data() as any) } : null;
+              } catch {
+                return null;
+              }
+            }),
+          );
+          savedOrders.forEach((o) => { if (o) map.set(o.id, o); });
+        }
         const list = Array.from(map.values());
         list.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
         setOrders(list);

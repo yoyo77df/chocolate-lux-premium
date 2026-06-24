@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { collection, doc, getDoc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { arrayUnion, collection, doc, getDoc, runTransaction, serverTimestamp, updateDoc } from "firebase/firestore";
 import { Layout } from "../components/Layout";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -136,13 +136,24 @@ function Checkout() {
           if (stock < it.qty) throw new Error(`Insufficient stock for ${it.name}`);
           const price = Number(data.discountPrice != null && data.discountPrice < data.price ? data.discountPrice : data.price);
           if (!Number.isFinite(price) || price < 0) throw new Error(`Invalid price for ${it.name}`);
-          tx.update(ref, { stock: stock - it.qty });
           lines.push({ id: it.id, name: data.name ?? it.name, qty: it.qty, price, image: data.image ?? it.image });
         }
         const result = calculateVerifiedTotals(lines);
         tx.set(orderRef, buildOrder(result));
         return result;
       });
+      await updateDoc(doc(db, "users", user.uid), {
+        orderIds: arrayUnion(orderRef.id),
+        updatedAt: serverTimestamp(),
+      }).catch((e) => console.warn("order id save skipped", e));
+      try {
+        const key = `chocolux_order_ids_${user.uid}`;
+        const saved = JSON.parse(window.localStorage.getItem(key) || "[]");
+        const ids = Array.isArray(saved) ? saved.filter((id) => typeof id === "string") : [];
+        window.localStorage.setItem(key, JSON.stringify(Array.from(new Set([...ids, orderRef.id])).slice(-1000)));
+      } catch (e) {
+        console.warn("local order id save skipped", e);
+      }
       cart.clear();
       toast.success(t("order_placed"));
       router.navigate({ to: "/orders" });

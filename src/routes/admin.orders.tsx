@@ -68,6 +68,30 @@ function AdminOrders() {
     }
   }
 
+  async function deductOrderStock(o: any) {
+    if (!isAdmin || o.stockDeducted || !Array.isArray(o.items) || o.items.length === 0) return;
+    try {
+      const { db } = getFirebase();
+      await runTransaction(db, async (tx) => {
+        for (const item of o.items) {
+          if (!item?.id) continue;
+          const productRef = doc(db, "products", item.id);
+          const productSnap = await tx.get(productRef);
+          if (!productSnap.exists()) continue;
+          const stock = Number((productSnap.data() as any).stock ?? 0);
+          const qty = Math.max(0, Number(item.qty ?? 0));
+          tx.update(productRef, { stock: Math.max(0, stock - qty) });
+        }
+        tx.update(doc(db, "orders", o.id), {
+          stockDeducted: true,
+          stockDeductedAt: serverTimestamp(),
+        });
+      });
+    } catch (e) {
+      console.warn("stock deduction skipped", e);
+    }
+  }
+
   async function setStatus(o: any, status: string) {
     try {
       const { db } = getFirebase();
@@ -82,6 +106,7 @@ function AdminOrders() {
         update.confirmedAt = serverTimestamp();
       }
       await updateDoc(doc(db, "orders", o.id), update);
+      if (becomingConfirmed) await deductOrderStock(o);
 
       if (becomingConfirmed && profile?.role === "mod" && user) {
         const credited = await applySalary(user.uid, o.total ?? 0);

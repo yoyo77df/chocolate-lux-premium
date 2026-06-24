@@ -57,7 +57,14 @@ async function loadProfile(user: User, language?: "en" | "bn", overrideName?: st
       earnedSalary: 0,
       createdAt: serverTimestamp(),
     };
-    await setDoc(ref, profile);
+    await setDoc(ref, {
+      uid: user.uid,
+      email: user.email,
+      displayName,
+      photoURL: user.photoURL,
+      language: language ?? "en",
+      createdAt: serverTimestamp(),
+    });
     return profile;
   }
   const data = snap.data() as UserProfile;
@@ -67,9 +74,9 @@ async function loadProfile(user: User, language?: "en" | "bn", overrideName?: st
   if (!data.photoURL && user.photoURL) patch.photoURL = user.photoURL;
   if (Object.keys(patch).length) {
     try { await setDoc(ref, patch, { merge: true }); } catch {}
-    return { ...data, ...patch } as UserProfile;
+    return { ...data, ...patch, role: data.role ?? "user", earnedSalary: data.earnedSalary ?? 0 } as UserProfile;
   }
-  return data;
+  return { ...data, role: data.role ?? "user", earnedSalary: data.earnedSalary ?? 0 } as UserProfile;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
