@@ -101,7 +101,7 @@ function ProductPage() {
   const hasDiscount = p.discountPrice != null && p.discountPrice < p.price;
   const display = hasDiscount ? p.discountPrice! : p.price;
   const stock = Number(p.stock ?? 0);
-  const isSoldOut = !Number.isFinite(stock) || stock <= 0;
+  const isSoldOut = !Number.isFinite(stock) || stock <= 1;
 
   function add(navigateToCheckout: boolean) {
     if (!p) return;

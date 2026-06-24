@@ -22,7 +22,7 @@ export function ProductCard({ p }: { p: Product }) {
   const router = useRouter();
   const { t } = useLang();
   const stock = Number(p.stock ?? 0);
-  const isSoldOut = !Number.isFinite(stock) || stock <= 0;
+  const isSoldOut = !Number.isFinite(stock) || stock <= 1;
   const hasDiscount = p.discountPrice != null && p.discountPrice < p.price;
   const display = hasDiscount ? p.discountPrice! : p.price;
 
