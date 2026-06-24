@@ -52,7 +52,10 @@ function Home() {
         const { db } = getFirebase();
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(8));
         const snap = await getDocs(q);
-        setFeatured(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })));
+        setFeatured(snap.docs.map((d) => {
+          const data = d.data() as any;
+          return { id: d.id, ...data, stock: Number(data.stock ?? 0), price: Number(data.price ?? 0), discountPrice: data.discountPrice == null ? null : Number(data.discountPrice) };
+        }));
       } catch (e) { console.error(e); }
       setLoading(false);
     })();

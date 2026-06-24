@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { collection, doc, getDoc, runTransaction, serverTimestamp, setDoc, type Firestore } from "firebase/firestore";
+import { collection, doc, getDoc, runTransaction, serverTimestamp } from "firebase/firestore";
 import { Layout } from "../components/Layout";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -115,21 +115,6 @@ function Checkout() {
     return { lines, serverSubtotal, serverShipping, serverTotal };
   }
 
-  async function verifyProductsWithoutStockUpdate(db: Firestore): Promise<VerifiedOrder> {
-    const lines: VerifiedOrder["lines"] = [];
-    for (const it of cart.items) {
-      const snap = await getDoc(doc(db, "products", it.id));
-      if (!snap.exists()) throw new Error(`Product ${it.name} not found`);
-      const data = snap.data() as any;
-      const stock = Number(data.stock ?? 0);
-      if (stock < it.qty) throw new Error(`Insufficient stock for ${it.name}`);
-      const price = Number(data.discountPrice != null && data.discountPrice < data.price ? data.discountPrice : data.price);
-      if (!Number.isFinite(price) || price < 0) throw new Error(`Invalid price for ${it.name}`);
-      lines.push({ id: it.id, name: data.name ?? it.name, qty: it.qty, price, image: data.image ?? it.image });
-    }
-    return calculateVerifiedTotals(lines);
-  }
-
   async function placeOrder(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
@@ -140,9 +125,7 @@ function Checkout() {
       // Recompute prices server-trusted: read each product price from Firestore
       // inside the transaction and validate stock. Never trust client prices.
       const orderRef = doc(collection(db, "orders"));
-      let verified: VerifiedOrder;
-      try {
-        verified = await runTransaction(db, async (tx) => {
+      await runTransaction(db, async (tx) => {
         const lines: { id: string; name: string; qty: number; price: number; image?: string }[] = [];
         for (const it of cart.items) {
           const ref = doc(db, "products", it.id);
@@ -160,11 +143,6 @@ function Checkout() {
         tx.set(orderRef, buildOrder(result));
         return result;
       });
-      } catch (err: any) {
-        if (err?.code !== "permission-denied") throw err;
-        verified = await verifyProductsWithoutStockUpdate(db);
-        await setDoc(orderRef, buildOrder(verified));
-      }
       cart.clear();
       toast.success(t("order_placed"));
       router.navigate({ to: "/orders" });
