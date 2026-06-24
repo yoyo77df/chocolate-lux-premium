@@ -32,8 +32,13 @@ function Orders() {
     (async () => {
       try {
         const { db } = getFirebase();
-        const snap = await getDocs(query(collection(db, "orders"), where("userId", "==", user.uid), limit(1000)));
-        const list = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
+        const byUid = await getDocs(query(collection(db, "orders"), where("userId", "==", user.uid), limit(1000)));
+        const byEmail = user.email
+          ? await getDocs(query(collection(db, "orders"), where("userEmail", "==", user.email), limit(1000)))
+          : null;
+        const map = new Map<string, any>();
+        [...byUid.docs, ...(byEmail?.docs ?? [])].forEach((d) => map.set(d.id, { id: d.id, ...(d.data() as any) }));
+        const list = Array.from(map.values());
         list.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
         setOrders(list);
       } catch (e) { console.error(e); }

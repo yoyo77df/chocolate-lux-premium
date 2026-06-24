@@ -99,9 +99,17 @@ service cloud.firestore {
     match /orders/{id} {
       // Owner can read their own order; admins/mods can read all.
       allow get: if isSignedIn()
-                 && (resource.data.userId == request.auth.uid || isMod());
+                 && (
+                   resource.data.userId == request.auth.uid
+                   || resource.data.userEmail == request.auth.token.email
+                   || isMod()
+                 );
       allow list: if isSignedIn()
-                  && (resource.data.userId == request.auth.uid || isMod());
+                  && (
+                    resource.data.userId == request.auth.uid
+                    || resource.data.userEmail == request.auth.token.email
+                    || isMod()
+                  );
 
       // Customer creates their own order. Status/confirmation locked at create.
       allow create: if isSignedIn()
